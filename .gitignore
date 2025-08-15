@@ -1,0 +1,28 @@
+# === Archivos de dependencias ===
+node_modules/
+vendor/
+
+# === Archivos de build ===
+dist/
+build/
+.cache/
+
+# === Archivos de sistema ===
+.DS_Store
+Thumbs.db
+
+# === Configuración de Firebase CLI ===
+.firebase/
+.firebaserc
+firebase-debug.log
+
+# === Archivos de entorno ===
+.env
+.env.local
+.env.*.local
+
+# === Archivos temporales ===
+*.log
+*.tmp
+*.bak
+*.swp

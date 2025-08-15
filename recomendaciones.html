@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recomendaciones Ambientales</title>
+    <style>
+      /* Estilos Generales */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: #f0f2f5;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        max-width: 900px;
+        width: 100%;
+      }
+
+      h1 {
+        text-align: center;
+        color: #1c2e4a;
+        margin-bottom: 30px;
+      }
+
+      /* Contenedor de las tarjetas de recomendación */
+      .recomendaciones-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      /* Estilo de cada tarjeta */
+      .card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-left: 8px solid #ccc; /* Borde de color que cambiará */
+        transition: all 0.3s ease;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .card-icon {
+        font-size: 2.5rem;
+        margin-right: 20px;
+      }
+
+      .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .card-body p {
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* Colores de Alerta (Clases que añadirá el JavaScript) */
+      .alerta-bueno {
+        border-left-color: #28a745;
+      } /* Verde */
+      .alerta-precaucion {
+        border-left-color: #ffc107;
+      } /* Amarillo */
+      .alerta-peligro {
+        border-left-color: #dc3545;
+      } /* Rojo */
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Recomendaciones para tu Hogar</h1>
+
+      <div class="recomendaciones-grid">
+        <!-- Tarjeta 1: Confort Térmico -->
+        <div class="card" id="card-confort">
+          <div class="card-header">
+            <span class="card-icon" id="icon-confort">😊</span>
+            <h2 class="card-title">Confort Térmico</h2>
+          </div>
+          <div class="card-body">
+            <p id="msg-confort">Calculando...</p>
+          </div>
+        </div>
+
+        <!-- Tarjeta 2: Riesgo de Moho y Ventilación -->
+        <div class="card" id="card-moho">
+          <div class="card-header">
+            <span class="card-icon" id="icon-moho">🌱</span>
+            <h2 class="card-title">Humedad y Ventilación</h2>
+          </div>
+          <div class="card-body">
+            <p id="msg-moho">Calculando...</p>
+          </div>
+        </div>
+
+        <!-- Tarjeta 3: Choque Térmico -->
+        <div class="card" id="card-choque">
+          <div class="card-header">
+            <span class="card-icon" id="icon-choque">🧥</span>
+            <h2 class="card-title">Diferencia de Temperatura</h2>
+          </div>
+          <div class="card-body">
+            <p id="msg-choque">Calculando...</p>
+          </div>
+        </div>
+
+        <!-- Tarjeta 4: Previsión del Tiempo -->
+        <div class="card" id="card-presion">
+          <div class="card-header">
+            <span class="card-icon" id="icon-presion">🌦️</span>
+            <h2 class="card-title">Cambio de Tiempo</h2>
+          </div>
+          <div class="card-body">
+            <p id="msg-presion">Calculando...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- INICIO DE LA LÓGICA ---
+
+      /**
+       * Función principal que recibe los datos y actualiza la interfaz.
+       * Llama a esta función cada vez que obtengas nuevos datos de Firebase.
+       * @param {object} datos - Objeto con todos los datos de los sensores.
+       */
+      function actualizarRecomendaciones(datos) {
+        // 1. Lógica de Confort Térmico
+        evaluarConfortTermico(datos.tempInterior, datos.humedadInterior);
+
+        // 2. Lógica de Moho y Ventilación
+        evaluarRiesgoMoho(datos.humedadInterior, datos.humedadExterior);
+
+        // 3. Lógica de Choque Térmico
+        evaluarDiferenciaTermica(datos.tempInterior, datos.tempExterior);
+
+        // 4. Lógica de Tendencia de Presión
+        evaluarTendenciaPresion(datos.presionActual, datos.presionAnterior);
+      }
+
+      /**
+       * Actualiza una tarjeta específica con un mensaje, icono y nivel de alerta.
+       */
+      function actualizarTarjeta(id, icono, mensaje, nivel) {
+        const card = document.getElementById(`card-${id}`);
+        document.getElementById(`icon-${id}`).textContent = icono;
+        document.getElementById(`msg-${id}`).textContent = mensaje;
+
+        card.className = "card"; // Resetea clases
+        card.classList.add(`alerta-${nivel}`); // Añade la clase de color
+      }
+
+      // --- FUNCIONES DE EVALUACIÓN INDIVIDUALES ---
+
+      function evaluarConfortTermico(temp, humedad) {
+        // El índice de calor se vuelve significativo sobre los 27°C
+        const sensacionTermica = calcularSensacionTermica(temp, humedad);
+
+        if (sensacionTermica > 32) {
+          actualizarTarjeta(
+            "confort",
+            "🥵",
+            `¡Mucho calor! La sensación térmica es de ${sensacionTermica.toFixed(
+              1
+            )}°C. Considera encender el aire acondicionado o un ventilador.`,
+            "peligro"
+          );
+        } else if (sensacionTermica > 27) {
+          actualizarTarjeta(
+            "confort",
+            "😅",
+            `Ambiente caluroso y húmedo. La sensación térmica es de ${sensacionTermica.toFixed(
+              1
+            )}°C. Mantente hidratado.`,
+            "precaucion"
+          );
+        } else if (temp < 18) {
+          actualizarTarjeta(
+            "confort",
+            "🥶",
+            "El ambiente está frío. Considera encender la calefacción para un mayor confort.",
+            "precaucion"
+          );
+        } else {
+          actualizarTarjeta(
+            "confort",
+            "😊",
+            "La temperatura y humedad están en un nivel de confort ideal. ¡Disfruta!",
+            "bueno"
+          );
+        }
+      }
+
+      function evaluarRiesgoMoho(humedadInt, humedadExt) {
+        if (humedadInt > 70) {
+          actualizarTarjeta(
+            "moho",
+            "⚠️",
+            `Humedad interior muy alta (${humedadInt}%)! Riesgo elevado de moho. Ventila urgentemente si el aire exterior es más seco.`,
+            "peligro"
+          );
+        } else if (humedadInt > 60) {
+          actualizarTarjeta(
+            "moho",
+            "💧",
+            `Humedad interior elevada (${humedadInt}%). Es un buen momento para ventilar si afuera no llueve.`,
+            "precaucion"
+          );
+        } else if (humedadInt > humedadExt + 5) {
+          actualizarTarjeta(
+            "moho",
+            "💨",
+            `El aire exterior está más seco. ¡Es el momento perfecto para abrir las ventanas y renovar el aire!`,
+            "bueno"
+          );
+        } else {
+          actualizarTarjeta(
+            "moho",
+            "👍",
+            `Niveles de humedad controlados (${humedadInt}%). No es necesario ventilar ahora.`,
+            "bueno"
+          );
+        }
+      }
+
+      function evaluarDiferenciaTermica(tempInt, tempExt) {
+        const diferencia = Math.abs(tempInt - tempExt);
+        if (diferencia > 10) {
+          actualizarTarjeta(
+            "choque",
+            "🧥",
+            `¡Cuidado! Hay ${diferencia.toFixed(
+              1
+            )}°C de diferencia con el exterior. Abrígate bien al salir para evitar un cambio brusco.`,
+            "peligro"
+          );
+        } else if (diferencia > 5) {
+          actualizarTarjeta(
+            "choque",
+            "🧣",
+            `Hay una diferencia notable de ${diferencia.toFixed(
+              1
+            )}°C con el exterior. Tenlo en cuenta al salir.`,
+            "precaucion"
+          );
+        } else {
+          actualizarTarjeta(
+            "choque",
+            "✅",
+            "La temperatura es muy similar a la del exterior. No necesitas precauciones especiales.",
+            "bueno"
+          );
+        }
+      }
+
+      function evaluarTendenciaPresion(presionActual, presionAnterior) {
+        const cambio = presionActual - presionAnterior;
+        // Un cambio de 1.5 hPa en 3 horas es una señal clara
+        if (cambio < -1.5) {
+          actualizarTarjeta(
+            "presion",
+            "🌧️",
+            "La presión atmosférica está bajando rápidamente. Alta probabilidad de lluvia o mal tiempo. ¡Cierra las ventanas!",
+            "peligro"
+          );
+        } else if (cambio > 1.5) {
+          actualizarTarjeta(
+            "presion",
+            "☀️",
+            "La presión está subiendo. El tiempo tiende a mejorar y estabilizarse.",
+            "bueno"
+          );
+        } else {
+          actualizarTarjeta(
+            "presion",
+            "🌤️",
+            "Presión atmosférica estable. No se esperan cambios bruscos de tiempo.",
+            "bueno"
+          );
+        }
+      }
+
+      // Función simple para calcular la sensación térmica (Heat Index)
+      // Nota: Esta es una aproximación, las fórmulas exactas son más complejas.
+      function calcularSensacionTermica(temperatura, humedad) {
+        if (temperatura < 27) return temperatura; // El índice de calor no aplica a temperaturas bajas
+        let heatIndex =
+          -8.78469475556 +
+          1.61139411 * temperatura +
+          2.33854883889 * humedad -
+          0.14611605 * temperatura * humedad -
+          0.012308094 * Math.pow(temperatura, 2) -
+          0.0164248277778 * Math.pow(humedad, 2) +
+          0.002211732 * Math.pow(temperatura, 2) * humedad +
+          0.00072546 * temperatura * Math.pow(humedad, 2) -
+          0.000003582 * Math.pow(temperatura, 2) * Math.pow(humedad, 2);
+        return heatIndex;
+      }
+
+      // --- EJECUCIÓN DE PRUEBA ---
+      // Esto se ejecuta cuando la página carga.
+      // En tu proyecto real, llamarías a actualizarRecomendaciones()
+      // con los datos que recibes de Firebase.
+      document.addEventListener("DOMContentLoaded", function () {
+        // SIMULACIÓN DE DATOS - Reemplaza esto con tus datos reales
+        const datosDePrueba = {
+          tempInterior: 22.5,
+          humedadInterior: 65,
+          tempExterior: 15.0,
+          humedadExterior: 85,
+          presionActual: 1008.5, // hPa
+          presionAnterior: 1010.5, // Presión de hace 3 horas
+        };
+
+        actualizarRecomendaciones(datosDePrueba);
+
+        // Ejemplo: Para probar otro escenario, puedes descomentar la siguiente línea
+        // setTimeout(() => {
+        //     const otrosDatos = {
+        //         tempInterior: 29, humedadInterior: 75, tempExterior: 32,
+        //         humedadExterior: 70, presionActual: 1015, presionAnterior: 1014
+        //     };
+        //     actualizarRecomendaciones(otrosDatos);
+        // }, 5000);
+      });
+    </script>
+  </body>
+</html>

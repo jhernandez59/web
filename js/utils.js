@@ -154,3 +154,46 @@ export function describirProbabilidadLluvia(pop) {
   if (porcentaje <= 80) return "🌧️ Muy probable";
   return "⛈️ Casi seguro";
 }
+
+/**
+ * Convierte un valor de cambio de presión en un mensaje y nivel de alerta.
+ * @param {number} diferencia - La diferencia de presión en hPa en las últimas horas.
+ * @returns {object} Un objeto con el mensaje y el nivel de alerta.
+ */
+export function interpretarTendenciaPresion(diferencia) {
+  // Estos umbrales son un buen punto de partida. Puedes ajustarlos según tu clima local.
+  // Un cambio de >1.5 hPa en 3-4 horas es bastante significativo.
+  if (diferencia < -1.5) {
+    return {
+      tendencia: diferencia,
+      mensaje:
+        "La presión está bajando rápidamente. Alta probabilidad de lluvia o mal tiempo. ¡Cierra las ventanas!",
+      nivel: "peligro",
+      icono: "🌧️",
+    };
+  } else if (diferencia < -0.5) {
+    return {
+      tendencia: diferencia,
+      mensaje:
+        "La presión tiende a bajar. Posibilidad de que el tiempo empeore.",
+      nivel: "precaucion",
+      icono: "🌦️",
+    };
+  } else if (diferencia > 1.5) {
+    return {
+      tendencia: diferencia,
+      mensaje:
+        "La presión está subiendo. El tiempo tiende a mejorar y estabilizarse.",
+      nivel: "bueno",
+      icono: "☀️",
+    };
+  } else {
+    return {
+      tendencia: diferencia,
+      mensaje:
+        "Presión atmosférica estable. No se esperan cambios bruscos de tiempo.",
+      nivel: "bueno",
+      icono: "🌤️",
+    };
+  }
+}

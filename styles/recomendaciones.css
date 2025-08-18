@@ -1,0 +1,73 @@
+/* Estilos Generales */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  max-width: 900px;
+  width: 100%;
+}
+
+h1 {
+  text-align: center;
+  color: #1c2e4a;
+  margin-bottom: 30px;
+}
+
+/* Contenedor de las tarjetas de recomendación */
+.recomendaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* Estilo de cada tarjeta */
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-left: 8px solid #ccc; /* Borde de color que cambiará */
+  transition: all 0.3s ease;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  margin-right: 20px;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.card-body p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Colores de Alerta (Clases que añadirá el JavaScript) */
+.alerta-bueno {
+  border-left-color: #28a745;
+} /* Verde */
+.alerta-precaucion {
+  border-left-color: #ffc107;
+} /* Amarillo */
+.alerta-peligro {
+  border-left-color: #dc3545;
+} /* Rojo */

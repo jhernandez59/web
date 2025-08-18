@@ -2,10 +2,6 @@
 // 1. IMPORTACIONES
 // =======================================================
 import { database } from "./firebase-init.js";
-import {
-  ref,
-  onValue,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 import { obtenerAmbienteExterior } from "./owm-ambiente.js";
 import {
@@ -16,6 +12,20 @@ import {
   describirProbabilidadLluvia,
   generarTendencia,
 } from "./utils.js";
+
+// En la parte superior de tu archivo, junto a otros imports de Firebase
+import {
+  getDatabase,
+  ref,
+  query,
+  orderByChild,
+  orderByKey,
+  limitToLast,
+  get,
+  onValue,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+import { actualizarTarjeta } from "./ui-recomendaciones.js";
 
 // =======================================================
 // 2. ESTADO INTERNO DEL MÓDULO (Variables "Privadas")
@@ -290,6 +300,112 @@ function actualizarSensorUI(datosSensor) {
   // FIn Seccion Estado del Sensor
 }
 
+/**
+ * Obtiene y analiza el historial de presión de las últimas horas desde Firebase.
+ * @param {string} macAddress - La MAC del sensor a consultar.
+ * @param {number} horas - El número de horas hacia atrás para analizar (ej. 3 o 6).
+ * @returns {Promise<object>} Un objeto con la tendencia, mensaje y nivel de alerta.
+ */
+async function analizarTendenciaPresion(macAddress, horas = 4) {
+  try {
+    const db = getDatabase();
+    const historialRef = ref(
+      db,
+      `/sensores_en_tiempo_real/${macAddress}/pressure_history`
+    );
+
+    // 1. Creamos una consulta para obtener solo los últimos 'N' registros (N = horas)
+    // Usamos orderByKey() porque los Push IDs de Firebase son cronológicos.
+    const consulta = query(historialRef, orderByKey(), limitToLast(horas));
+
+    // 2. Ejecutamos la consulta una sola vez con get()
+    const snapshot = await get(consulta);
+
+    if (!snapshot.exists() || snapshot.size < 2) {
+      // No hay suficientes datos para calcular una tendencia.
+      console.log("Calculando tendencia de presión... (datos insuficientes)");
+      return { tendencia: 0, mensaje: "Calculando...", nivel: "precaucion" };
+    }
+
+    // 3. Convertimos el objeto de Firebase en un array para poder ordenarlo y accederlo
+    const datosArray = [];
+    snapshot.forEach((childSnapshot) => {
+      datosArray.push(childSnapshot.val());
+    });
+
+    // 4. Extraemos la primera y la última lectura del periodo
+    const primeraLectura = datosArray[0];
+    const ultimaLectura = datosArray[datosArray.length - 1];
+
+    const presionAnterior = primeraLectura.pressure;
+    const presionReciente = ultimaLectura.pressure;
+
+    // Calculamos la diferencia
+    const diferencia = presionReciente - presionAnterior;
+
+    console.log(
+      `Análisis de tendencia de presión (${horas}h): ${presionAnterior.toFixed(
+        2
+      )} hPa -> ${presionReciente.toFixed(
+        2
+      )} hPa. Diferencia: ${diferencia.toFixed(2)} hPa`
+    );
+
+    // 5. Usamos una función de utilidad para interpretar el resultado
+    return interpretarTendenciaPresion(diferencia);
+  } catch (error) {
+    console.error("Error al analizar la tendencia de presión:", error);
+    return {
+      tendencia: 0,
+      mensaje: "Error al obtener datos.",
+      nivel: "peligro",
+    };
+  }
+}
+
+/**
+ * Convierte un valor de cambio de presión en un mensaje y nivel de alerta.
+ * @param {number} diferencia - La diferencia de presión en hPa en las últimas horas.
+ * @returns {object} Un objeto con el mensaje y el nivel de alerta.
+ */
+export function interpretarTendenciaPresion(diferencia) {
+  // Estos umbrales son un buen punto de partida. Puedes ajustarlos según tu clima local.
+  // Un cambio de >1.5 hPa en 3-4 horas es bastante significativo.
+  if (diferencia < -1.5) {
+    return {
+      tendencia: diferencia,
+      mensaje:
+        "La presión está bajando rápidamente. Alta probabilidad de lluvia o mal tiempo. ¡Cierra las ventanas!",
+      nivel: "peligro",
+      icono: "🌧️",
+    };
+  } else if (diferencia < -0.5) {
+    return {
+      tendencia: diferencia,
+      mensaje:
+        "La presión tiende a bajar. Posibilidad de que el tiempo empeore.",
+      nivel: "precaucion",
+      icono: "🌦️",
+    };
+  } else if (diferencia > 1.5) {
+    return {
+      tendencia: diferencia,
+      mensaje:
+        "La presión está subiendo. El tiempo tiende a mejorar y estabilizarse.",
+      nivel: "bueno",
+      icono: "☀️",
+    };
+  } else {
+    return {
+      tendencia: diferencia,
+      mensaje:
+        "Presión atmosférica estable. No se esperan cambios bruscos de tiempo.",
+      nivel: "bueno",
+      icono: "🌤️",
+    };
+  }
+}
+
 // =======================================================
 // 4. FUNCIÓN PÚBLICA PRINCIPAL (Punto de Entrada)
 // =======================================================
@@ -304,6 +420,7 @@ export function iniciarListenerSensor() {
 
   // Variable para controlar que el setInterval se inicie una sola vez
   let owmTimerId = null;
+  let presionTimerId = null; // >>> NUEVA variable de control
 
   // A. Listener de Firebase (para el SENSOR)
   onValue(sensorRef, (snapshot) => {
@@ -331,6 +448,29 @@ export function iniciarListenerSensor() {
         owmTimerId = setInterval(() => {
           actualizarClimaExteriorUI(data.latitud, data.longitud);
         }, INTERVALO_OWM);
+      }
+
+      // >>> NUEVA LÓGICA PARA LA TENDENCIA DE PRESIÓN <<<
+      // Se ejecuta solo la primera vez que recibimos datos.
+      if (!presionTimerId) {
+        console.log("📊 Iniciando ciclo de análisis de presión.");
+
+        // 1. Llamamos a la función inmediatamente la primera vez
+        const procesarPresion = async () => {
+          const resultadoTendencia = await analizarTendenciaPresion(mac);
+          // Suponiendo que tienes una función para actualizar la tarjeta
+          actualizarTarjeta(
+            "presion",
+            resultadoTendencia.icono,
+            resultadoTendencia.mensaje,
+            resultadoTendencia.nivel
+          );
+        };
+        procesarPresion();
+
+        // 2. Y luego, establecemos un temporizador para que se llame cada hora
+        const INTERVALO_PRESION = 60 * 60 * 1000; // 1 hora
+        presionTimerId = setInterval(procesarPresion, INTERVALO_PRESION);
       }
     }
   });

@@ -1,5 +1,6 @@
+// ARCHIVO: main-recomendaciones.js
 import {
-  iniciarControladorDeDatos,
+  iniciarControladorDeDatos, // Inicia el sistema que recibe datos del sensor y de OWM.
   analizarTendenciaPresion,
 } from "./data-controller.js";
 
@@ -8,25 +9,57 @@ import {
   actualizarTarjetaPresion,
 } from "./ui-recomendaciones.js";
 
+// Necesitamos una variable para guardar los datos del sensor y de OWM
+let datosSensorActuales = null;
+let datosOwmActuales = null;
+
 function appRecomendaciones() {
   console.log("App de recomendaciones iniciada.");
 
   // Creamos el objeto de callbacks para esta página
   const callbacks = {
     onSensorData: (datosSensor) => {
-      // Cuando lleguen datos del sensor, los pasamos a la UI de recomendaciones
-      // Necesitamos combinarlo con los datos de OWM si los tenemos.
-      // Por ahora, lo dejamos simple.
-      const datosFormateados = {
-        sensor: datosSensor.actual,
-        owm: null, // OWM se manejaría por separado
-      };
-      actualizarRecomendacionesUI(datosFormateados);
+      // >>> LÍNEA DE DEPURACIÓN <<<
+      console.log(
+        "%cSENSOR DATA RECIBIDO EN MAIN:",
+        "color: blue; font-weight: bold;",
+        datosSensor
+      );
+
+      datosSensorActuales = datosSensor;
+      // Si ya tenemos los datos de OWM, actualizamos todo
+      if (datosOwmActuales) {
+        // >>> LÍNEA DE DEPURACIÓN <<<
+        console.log(
+          "Llamando a actualizarRecomendacionesUI (desde onSensorData)"
+        );
+
+        actualizarRecomendacionesUI({
+          sensor: datosSensorActuales.actual,
+          owm: datosOwmActuales.datosActuales.clima,
+        });
+      }
     },
-    onOwmData: (datosOwm) => {
-      // Podríamos actualizar las recomendaciones que dependen de OWM aquí
+    onOwmData: (datosAmbiente) => {
+      datosOwmActuales = datosAmbiente;
+      // >>> LÍNEA DE DEPURACIÓN <<<
+      console.log(
+        "%cOWM DATA RECIBIDO EN MAIN:",
+        "color: green; font-weight: bold;",
+        datosAmbiente
+      );
+
+      // Si ya tenemos los datos del sensor, actualizamos todo
+      if (datosSensorActuales) {
+        // >>> LÍNEA DE DEPURACIÓN <<<
+        console.log("Llamando a actualizarRecomendacionesUI (desde onOwmData)");
+
+        actualizarRecomendacionesUI({
+          sensor: datosSensorActuales.actual,
+          owm: datosOwmActuales.datosActuales.clima, // Pasamos el objeto 'clima' completo
+        });
+      }
     },
-    // No necesitamos onEstadoUpdate en esta página, así que no lo definimos.
   };
 
   iniciarControladorDeDatos(callbacks);

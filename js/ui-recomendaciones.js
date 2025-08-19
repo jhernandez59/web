@@ -95,7 +95,20 @@ function evaluarRiesgoMoho(humedadInt, humedadExt) {
 }
 
 function evaluarDiferenciaTermica(tempInt, tempExt) {
-  if (!tempExt) return; // Si no hay datos exteriores, no hacer nada.
+  // >>> LÍNEAS DE DEPURACIÓN <<<
+  console.log(
+    `Evaluando Diferencia Térmica: Interior=${tempInt}, Exterior=${tempExt}`
+  );
+
+  if (!tempExt && tempExt !== 0) {
+    // Comprobamos si tempExt es null, undefined, etc. pero permitimos 0
+    console.warn(
+      "No hay datos de temperatura exterior. No se puede actualizar la tarjeta de Choque Térmico."
+    );
+    return;
+  }
+  // >>> FIN LINEAS DEPURACION
+
   const diferencia = Math.abs(tempInt - tempExt);
   if (diferencia > 10) {
     actualizarTarjeta(
@@ -140,10 +153,9 @@ export function actualizarRecomendacionesUI(datos) {
       datos.sensor.humedad,
       datos.owm ? datos.owm.humidity : null
     );
-    evaluarDiferenciaTermica(
-      datos.sensor.temperatura,
-      datos.owm ? datos.owm.temp : null
-    );
+
+    const tempExterior = datos.owm ? datos.owm.temperatura : null;
+    evaluarDiferenciaTermica(datos.sensor.temperatura, tempExterior);
   }
 }
 

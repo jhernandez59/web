@@ -19,6 +19,14 @@ import {
   onValue,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+/*
+import {
+  getDatabase,
+  ref,
+  onValue,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+*/
+
 import { obtenerAmbienteExterior } from "./owm-ambiente.js";
 import { interpretarTendenciaPresion } from "./utils.js";
 
@@ -111,7 +119,7 @@ export function iniciarControladorDeDatos(callbacks) {
   const params = new URLSearchParams(location.search);
   const mac = params.get("mac") || "68C63A87F36C";
   const path = `/sensores_en_tiempo_real/${mac}`;
-  const sensorRef = ref(database, path);
+  const sensorRef = ref(database, path); // Apunta a /sensores_en_tiempo_real/{mac} en Realtime Database.
 
   let owmTimerId = null;
 
@@ -122,7 +130,7 @@ export function iniciarControladorDeDatos(callbacks) {
       console.log("Datos del sensor recibidos:", data);
       ultimoTimestampRecibido = data.actual.timestamp; // Actualizamos el timestamp para el estado
 
-      // >> LLAMADA AL CALLBACK DE SENSOR <<
+      // >> LLAMADA AL CALLBACK DE SENSOR CON LOS DATOS <<
       // Si el callback existe, le pasamos los datos.
       if (callbacks.onSensorData) {
         callbacks.onSensorData(data);
@@ -132,20 +140,22 @@ export function iniciarControladorDeDatos(callbacks) {
       if (data.latitud && data.longitud && !owmTimerId) {
         console.log("🌍 Iniciando ciclo de actualización de OWM.");
 
-        const actualizarOwm = async () => {
+        const actactualizarYNotificarOwm = async () => {
           const datosAmbiente = await obtenerAmbienteExterior(
             data.latitud,
             data.longitud
           );
+
           // >> LLAMADA AL CALLBACK DE OWM <<
+          // Notificamos a la UI sobre los nuevos datos de OWM
           if (datosAmbiente && callbacks.onOwmData) {
             callbacks.onOwmData(datosAmbiente);
           }
         };
 
-        actualizarOwm(); // La primera vez
+        actactualizarYNotificarOwm(); // La primera vez
         const INTERVALO_OWM = 15 * 60 * 1000;
-        owmTimerId = setInterval(actualizarOwm, INTERVALO_OWM);
+        owmTimerId = setInterval(actactualizarYNotificarOwm, INTERVALO_OWM);
       }
     }
   });

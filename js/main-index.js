@@ -1,22 +1,86 @@
-import { iniciarControladorDeDatos } from "./data-controller.js";
+// ARCHIVO: main-recomendaciones.js
 import {
-  actualizarSensorUI,
-  actualizarClimaExteriorUI,
-  actualizarEstadoUI,
-} from "./ui-index.js";
+  iniciarControladorDeDatos, // Inicia el sistema que recibe datos del sensor y de OWM.
+  analizarTendenciaPresion,
+} from "./data-controller.js";
+
+import {
+  actualizarRecomendacionesUI,
+  actualizarTarjetaPresion,
+  actualizarEnlacesTarjetas,
+} from "./ui-recomendaciones.js";
+
+// Necesitamos una variable para guardar los datos del sensor y de OWM
+let datosSensorActuales = null;
+let datosOwmActuales = null;
 
 function appIndex() {
-  console.log("App de la página principal iniciada.");
+  console.log("App de la página principal (Recomendaciones) iniciada.");
 
-  // Creamos el objeto de callbacks con las funciones de UI de esta página
+  const params = new URLSearchParams(location.search);
+  const mac = params.get("mac") || "68C63A87F36C";
+
+  actualizarEnlacesTarjetas(mac);
+
+  // Creamos el objeto de callbacks para esta página
   const callbacks = {
-    onSensorData: actualizarSensorUI,
-    onOwmData: actualizarClimaExteriorUI,
-    onEstadoUpdate: actualizarEstadoUI,
+    onSensorData: (datosSensor) => {
+      // >>> LÍNEA DE DEPURACIÓN <<<
+      console.log(
+        "%cSENSOR DATA RECIBIDO EN MAIN:",
+        "color: blue; font-weight: bold;",
+        datosSensor
+      );
+
+      datosSensorActuales = datosSensor;
+      // Si ya tenemos los datos de OWM, actualizamos todo
+      if (datosOwmActuales) {
+        // >>> LÍNEA DE DEPURACIÓN <<<
+        console.log(
+          "Llamando a actualizarRecomendacionesUI (desde onSensorData)"
+        );
+
+        actualizarRecomendacionesUI({
+          sensor: datosSensorActuales.actual,
+          owm: datosOwmActuales.datosActuales.clima,
+        });
+      }
+    },
+    onOwmData: (datosAmbiente) => {
+      datosOwmActuales = datosAmbiente;
+      // >>> LÍNEA DE DEPURACIÓN <<<
+      console.log(
+        "%cOWM DATA RECIBIDO EN MAIN:",
+        "color: green; font-weight: bold;",
+        datosAmbiente
+      );
+
+      // Si ya tenemos los datos del sensor, actualizamos todo
+      if (datosSensorActuales) {
+        // >>> LÍNEA DE DEPURACIÓN <<<
+        console.log("Llamando a actualizarRecomendacionesUI (desde onOwmData)");
+
+        actualizarRecomendacionesUI({
+          sensor: datosSensorActuales.actual,
+          owm: datosOwmActuales.datosActuales.clima, // Pasamos el objeto 'clima' completo
+        });
+      }
+    },
   };
 
-  // Iniciamos el controlador de datos y le pasamos nuestros callbacks
   iniciarControladorDeDatos(callbacks);
+
+  // Lógica específica para la tendencia de presión
+  //const params = new URLSearchParams(location.search);
+  //const mac = params.get("mac") || "68C63A87F36C";
+
+  const procesarPresion = async () => {
+    const resultado = await analizarTendenciaPresion(mac);
+    actualizarTarjetaPresion(resultado); // Llamamos a la nueva función de UI
+  };
+
+  procesarPresion(); // La primera vez
+  setInterval(procesarPresion, 60 * 60 * 1000); // Luego cada hora
 }
 
 document.addEventListener("DOMContentLoaded", appIndex);

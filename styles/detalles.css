@@ -77,3 +77,14 @@ b {
 .tendencia-estable {
   color: #555;
 } /* Gris para estable */
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #1c2e4a;
+  text-decoration: none;
+}
+.back-link:hover {
+  text-decoration: underline;
+}

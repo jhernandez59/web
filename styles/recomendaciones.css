@@ -71,3 +71,15 @@ h1 {
 .alerta-peligro {
   border-left-color: #dc3545;
 } /* Rojo */
+
+/* Al final de tu archivo CSS */
+.card-link {
+  text-decoration: none; /* Quita el subrayado del enlace */
+  color: inherit; /* Hereda el color del texto normal */
+}
+
+/* Opcional: añade un efecto hover a toda la tarjeta */
+.card-link:hover .card {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}

@@ -22,6 +22,22 @@ export function actualizarTarjeta(id, icono, mensaje, nivel) {
   card.classList.add(`alerta-${nivel}`); // Añade la clase de color
 }
 
+/**
+ * Actualiza los enlaces de las tarjetas para que apunten a la página de detalles
+ * con la MAC address correcta.
+ * @param {string} macAddress - La MAC del sensor actual.
+ */
+export function actualizarEnlacesTarjetas(macAddress) {
+  const ids = ["confort", "moho", "choque", "presion"];
+  ids.forEach((id) => {
+    const link = document.getElementById(`link-${id}`);
+    if (link) {
+      // Construimos el enlace con el parámetro de la MAC
+      link.href = `detalles.html?mac=${macAddress}`;
+    }
+  });
+}
+
 // --- LÓGICA DE EVALUACIÓN ---
 // Estas funciones son "privadas" del módulo. No necesitan ser exportadas.
 

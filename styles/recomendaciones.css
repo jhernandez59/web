@@ -6,8 +6,15 @@ body {
   color: #333;
   margin: 0;
   padding: 20px;
+  /* >>> QUITAMOS 'display: flex' y 'justify-content' de aquí <<< */
+}
+
+/* >>> NUEVO ESTILO PARA EL CONTENEDOR PRINCIPAL <<< */
+.app-wrapper {
   display: flex;
-  justify-content: center;
+  flex-direction: column; /* <-- ¡LA CLAVE! Apila los elementos verticalmente */
+  align-items: center; /* Centra los elementos horizontalmente */
+  width: 100%;
 }
 
 .container {
@@ -82,4 +89,34 @@ h1 {
 .card-link:hover .card {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/*
+=================================
+ESTILOS DEL FOOTER
+=================================
+*/
+.site-footer {
+  width: 100%;
+  max-width: 900px;
+  margin: 40px auto 20px auto; /* Espacio arriba y abajo */
+  padding: 20px 0;
+  border-top: 1px solid #e0e0e0; /* Una línea sutil para separar */
+  text-align: center;
+  color: #888;
+  font-size: 0.9em;
+}
+
+.site-footer p {
+  margin: 5px 0;
+}
+
+.site-footer a {
+  color: #555; /* Un color de enlace un poco más oscuro */
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
 }

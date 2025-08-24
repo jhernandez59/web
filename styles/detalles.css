@@ -1,4 +1,4 @@
-/* estilos.css */
+/* detalles.css CORREGIDO Y LIMPIO */
 
 :root {
   --color-fondo: #121212;
@@ -18,6 +18,7 @@ body {
 }
 
 main {
+  /* Este max-width se aplicará en móvil y será reemplazado en PC */
   max-width: 600px;
   margin: auto;
   padding: 1.5em;
@@ -46,6 +47,7 @@ b {
   font-weight: 600;
 }
 
+/* El media query original para móvil */
 @media (max-width: 600px) {
   main {
     padding: 1em;
@@ -82,9 +84,41 @@ b {
   display: inline-block;
   margin-bottom: 20px;
   font-weight: 600;
-  color: #1c2e4a;
+  color: var(--color-titulo);
   text-decoration: none;
 }
 .back-link:hover {
   text-decoration: underline;
+}
+
+/* ======================================================= */
+/* ESTILOS PARA LA VISTA DE ESCRITORIO (PC) - VERSIÓN ÚNICA Y CORRECTA */
+/* ======================================================= */
+@media (min-width: 992px) {
+  /* 1. Hacemos más ancho el contenedor principal */
+  main {
+    max-width: 1200px;
+  }
+
+  /* 2. Convertimos el .columnas-wrapper en un layout flexible */
+  .columnas-wrapper {
+    display: flex;
+    gap: 1.5em;
+    align-items: flex-start;
+  }
+
+  /* 3. Definimos el tamaño de cada columna */
+  .columna-izquierda {
+    flex: 1;
+  }
+
+  .columna-derecha {
+    flex: 1;
+  }
+
+  /* 4. Alineamos los márgenes superiores para un look más limpio */
+  .columna-izquierda > section:first-child,
+  .columna-derecha {
+    margin-top: 0;
+  }
 }

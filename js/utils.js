@@ -33,7 +33,7 @@ export function descripcionAQI(aqi) {
  * @param {Array} daily - El array de pronóstico por día de la API de OWM.
  * @returns {Object} Un objeto con las probabilidades calculadas.
  */
-export function procesarPronosticoLluvia(hourly, daily) {
+export function procesarPronosticoLluviaHora(hourly, daily) {
   if (!hourly || !daily || hourly.length === 0 || daily.length < 2) {
     return { tresHoras: 0, seisHoras: 0, manana: 0 };
   }
@@ -196,4 +196,56 @@ export function interpretarTendenciaPresion(diferencia) {
       icono: "🌤️",
     };
   }
+}
+
+/**
+ * Procesa los datos de pronóstico de lluvia para generar un texto descriptivo.
+ * Prioriza los datos por minuto para mayor precisión.
+ *
+ * @param {Array} minutely - El array de pronóstico por minuto de la API de OWM (para los próximos 60 min).
+ * @param {Array} hourly - El array de pronóstico por hora, como respaldo.
+ * @returns {string} Un texto descriptivo sobre la lluvia.
+ */
+export function procesarPronosticoLluvia(minutely, hourly) {
+  // --- Caso 1: Tenemos datos por minuto (la mejor fuente) ---
+  if (minutely && minutely.length > 0) {
+    // Buscamos el primer minuto donde la precipitación sea mayor a 0.
+    const primerMinutoConLluvia = minutely.find(
+      (minuto) => minuto.precipitation > 0
+    );
+
+    if (!primerMinutoConLluvia) {
+      return "No se espera precipitación en la próxima hora";
+    }
+
+    // Calculamos cuántos minutos faltan para que empiece a llover.
+    const ahora = Date.now() / 1000; // Tiempo actual en segundos
+    const minutosParaLlover = Math.round(
+      (primerMinutoConLluvia.dt - ahora) / 60
+    );
+
+    if (minutosParaLlover <= 1) {
+      // Ya está lloviendo o empieza en este instante
+      const intensidad = primerMinutoConLluvia.precipitation;
+      if (intensidad < 2.5) return "Llovizna o lluvia ligera en curso";
+      if (intensidad < 7.6) return "Lluvia moderada en curso";
+      return "Lluvia intensa en curso";
+    } else {
+      return `Precipitación comenzando en aprox. ${minutosParaLlover} min.`;
+    }
+  }
+
+  // --- Caso 2: No hay datos por minuto, usamos el pronóstico por hora como respaldo ---
+  if (hourly && hourly.length > 0) {
+    const popPrimeraHora = hourly[0].pop; // Probabilidad en la primera hora
+    if (popPrimeraHora > 0.3) {
+      // Umbral del 30% para considerarlo relevante
+      return `Prob. de lluvia: ${Math.round(popPrimeraHora * 100)} %`;
+    } else {
+      return "Baja probabilidad de lluvia próximamente";
+    }
+  }
+
+  // --- Caso 3: No tenemos ningún dato ---
+  return "Pronóstico de lluvia no disponible";
 }

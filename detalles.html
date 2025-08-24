@@ -1,3 +1,5 @@
+<!-- detalles.html CORREGIDO -->
+
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -10,129 +12,143 @@
     <main>
       <h1>🌿 Sensor Ambiental: <span id="nombre">Cargando...</span></h1>
       <div class="container">
+        <!-- ESTE ENLACE AHORA ESTÁ FUERA DEL CONTENEDOR FLEX -->
         <a href="index.html" class="back-link"
           >&larr; Volver a las Recomendaciones</a
         >
-        <!-- ======================================================= -->
-        <!-- SECCIÓN 1: DATOS DEL SENSOR INTERIOR -->
-        <!-- ======================================================= -->
-        <section>
-          <h2>🏡 Clima Interior (Sensor)</h2>
-
-          <p>
-            <b>Temperatura:</b> <span class="dato-principal" id="temp">-</span>
-            <!-- Indicador de tendencia: se llena con JS -->
-            <span class="tendencia" id="temp_trend"></span>
-          </p>
-
-          <p>
-            <b>Sensación Térmica:</b>
-            <span class="dato-principal" id="sensacion">-</span>
-            <span class="tendencia" id="sensacion_trend"></span>
-          </p>
-
-          <p>
-            <b>Humedad:</b> <span class="dato-principal" id="hum">-</span>
-            <span class="tendencia" id="hum_trend"></span>
-          </p>
-
-          <p>
-            <b>Presión (a Nivel del Mar):</b>
-            <span class="dato-principal" id="pres_nivel_mar">-</span>
-            <span class="tendencia" id="pres_nivel_mar_trend"></span>
-          </p>
-
-          <p>
-            <b>Ultimo Reporte:</b>
-            <span class="dato-principal" id="ultimo_reporte">-</span>
-          </p>
-
-          <!-- La presión absoluta es un dato secundario, perfecto para la sección de estado -->
-        </section>
 
         <!-- ======================================================= -->
-        <!-- SECCIÓN 3: CLIMA EXTERIOR OWM -->
+        <!-- NUEVO CONTENEDOR EXCLUSIVO PARA LAS COLUMNAS -->
         <!-- ======================================================= -->
-        <section>
-          <h2>🌤️ Clima Exterior (referencia)</h2>
-          <p><b>Ubicación:</b> <span id="ubicacion_ext">-</span></p>
-          <p><span id="condicion_ext">-</span></p>
-          <!-- Ej: "Parcialmente nublado" -->
+        <div class="columnas-wrapper">
+          <div class="columna-izquierda">
+            <!-- SECCIÓN 1: DATOS DEL SENSOR INTERIOR -->
+            <section>
+              <h2>🏡 Clima Interior (Sensor)</h2>
+              <!-- ... contenido de la sección ... -->
+              <p>
+                <b>Temperatura:</b>
+                <span class="dato-principal" id="temp">-</span>
+                <span class="tendencia" id="temp_trend"></span>
+              </p>
+              <p style="color: #ff8c00">
+                <b>Sensación Térmica:</b>
+                <span class="dato-principal" id="sensacion">-</span>
+                <span class="tendencia" id="sensacion_trend"></span>
+              </p>
+              <p style="color: #ff8c00">
+                <b>Humedad:</b> <span class="dato-principal" id="hum">-</span>
+                <span class="tendencia" id="hum_trend"></span>
+              </p>
+              <p>
+                <b>Presión:</b>
+                <span class="dato-principal" id="pres_nivel_mar">-</span>
+                <span class="tendencia" id="pres_nivel_mar_trend"></span>
+              </p>
+              <p>
+                <b>Ultimo Reporte:</b>
+                <span class="dato-principal" id="ultimo_reporte">-</span>
+              </p>
+            </section>
 
-          <p>
-            <b>Temperatura:</b>
-            <span class="dato-principal" id="temp_ext">-</span>
-            <span class="tendencia" id="temp_ext_trend"></span>
-          </p>
-
-          <p>
-            <b>Sensación Termica:</b>
-            <span class="dato-principal" id="sensacion_ext">-</span>
-            <span class="tendencia" id="sensacion_ext_trend"></span>
-          </p>
-
-          <p><b>Prob. de Lluvia:</b> <span id="lluvia_ext">-</span></p>
-
-          <p>
-            <b>Humedad:</b> <span class="dato-principal" id="hum_ext">-</span>
-            <span class="tendencia" id="hum_ext_trend"></span>
-          </p>
-
-          <p>
-            <b>Punto de Rocío:</b>
-            <span class="dato-principal" id="rocio_ext">-</span>
-            <span class="tendencia" id="rocio_ext_trend"></span>
-          </p>
-
-          <p>
-            <b>Presión:</b> <span class="dato-principal" id="pres_ext">-</span>
-            <span class="tendencia" id="pres_ext_trend"></span>
-          </p>
-
-          <p>
-            <b>Calidad del Aire (AQI):</b>
-            <span class="dato-principal" id="aqi_ext">-</span>
-            <span id="aqi_calidad"></span>
-          </p>
-
-          <p>
-            <b>Ultimo Reporte:</b>
-            <span class="dato-principal" id="ultimo_reporte_ext">-</span>
-          </p>
-
-          <div class="pronostico-container">
-            <h4>Pronóstico de Lluvia 🌧️</h4>
-            <p>
-              Próx. 3 horas: <span id="pop_3h_porc">-</span>
-              <span class="desc" id="pop_3h_desc"></span>
-            </p>
-            <p>
-              Próx. 6 horas: <span id="pop_6h_porc">-</span>
-              <span class="desc" id="pop_6h_desc"></span>
-            </p>
-            <p>
-              Mañana: <span id="pop_manana_porc">-</span>
-              <span class="desc" id="pop_manana_desc"></span>
-            </p>
+            <!-- SECCIÓN 2: ESTADO DEL DISPOSITIVO -->
+            <section>
+              <h2>📡 Estado del Dispositivo</h2>
+              <!-- ... contenido de la sección ... -->
+              <p><b>Estado:</b> <span id="estado_sensor">Conectado</span></p>
+              <p>
+                <b>Señal WiFi (RSSI):</b> <span id="rssi">-</span>
+                <span id="rssi_calidad"></span>
+              </p>
+              <p><b>Dirección IP:</b> <span id="ip">-</span></p>
+              <p><b>Coordenadas:</b> <span id="coordenadas">-</span></p>
+              <p><b>Presión Absoluta (sensor):</b> <span id="pres">-</span></p>
+              <p><b>Firmware:</b> <span id="firmware">-</span></p>
+            </section>
           </div>
-        </section>
 
-        <!-- ======================================================= -->
-        <!-- SECCIÓN 2: ESTADO DEL DISPOSITIVO -->
-        <!-- ======================================================= -->
-        <section>
-          <h2>📡 Estado del Dispositivo</h2>
-          <p><b>Estado:</b> <span id="estado_sensor">Conectado</span></p>
-          <p>
-            <b>Señal WiFi (RSSI):</b> <span id="rssi">-</span>
-            <span id="rssi_calidad"></span>
-          </p>
-          <p><b>Dirección IP:</b> <span id="ip">-</span></p>
-          <p><b>Coordenadas:</b> <span id="coordenadas">-</span></p>
-          <p><b>Presión Absoluta (sensor):</b> <span id="pres">-</span></p>
-          <p><b>Firmware:</b> <span id="firmware">-</span></p>
-        </section>
+          <!-- SECCIÓN 3: CLIMA EXTERIOR OWM (COLUMNA DERECHA) -->
+          <section class="columna-derecha">
+            <h2>🌤️ Clima Exterior (Satelite)</h2>
+            <!-- ... todo el contenido de la sección de clima exterior ... -->
+            <p>
+              <b>Temperatura:</b>
+              <span class="dato-principal" id="temp_ext">-</span>
+              <span class="tendencia" id="temp_ext_trend"></span>
+            </p>
+            <p style="color: #ff8c00">
+              <b>Sensación Termica:</b>
+              <span class="dato-principal" id="sensacion_ext">-</span>
+              <span class="tendencia" id="sensacion_ext_trend"></span>
+            </p>
+            <p style="color: #ff8c00">
+              <b>Humedad:</b> <span class="dato-principal" id="hum_ext">-</span>
+              <span class="tendencia" id="hum_ext_trend"></span>
+            </p>
+            <p>
+              <b>Probabilidad de Lluvia 1h:</b> <span id="lluvia_ext">-</span>
+            </p>
+            <p style="color: #ff8c00">
+              <b>Pronóstico 1h:</b> <span id="pop_1h_porc">-</span>
+              <span class="desc" id="pop_1h_desc"></span>
+            </p>
+            <p>
+              <b>Presión:</b>
+              <span class="dato-principal" id="pres_ext">-</span>
+              <span class="tendencia" id="pres_ext_trend"></span>
+            </p>
+            
+            <p>
+              <b>Punto de Rocío:</b>
+              <span class="dato-principal" id="rocio_ext">-</span>
+              <span class="tendencia" id="rocio_ext_trend">Rocio</span>
+              <p><span id="descripcion_ext">-Desc-Ext</span></p>
+            </p>
+            <p>
+              <b>Calidad del Aire (AQI):</b>
+              <span class="dato-principal" id="aqi_ext">-</span>
+              <span id="aqi_calidad"></span>
+            </p>
+            <!-- <div class="pronostico-container"> -->
+            <p><b>Pronóstico de Lluvia:</b></p>
+            <ul class="rain-forecast">
+              <li>
+                <span class="time-label">Próx. 3 horas:</span>
+                <span>
+                  <span class="percentage" id="pop_3h_porc">-</span>
+                  <span class="description" id="pop_3h_desc"></span>
+                </span>
+              </li>
+              <li>
+                <span class="time-label">Próx. 6 horas:</span>
+                <span>
+                  <span class="percentage" id="pop_6h_porc">-</span>
+                  <span class="description" id="pop_6h_desc"></span>
+                </span>
+              </li>
+              <li>
+                <span class="time-label">Mañana:</span>
+                <span>
+                  <span class="percentage" id="pop_manana_porc">-</span>
+                  <span class="description" id="pop_manana_desc"></span>
+                </span>
+              </li>
+            </ul>
+            <!-- </div> -->
+            <p>
+              <b>Ubicación - Descripcion:</b> <span id="ubicacion_ext">-</span
+              ><span id="condicion_ext">-</span>
+            </p>
+            <!-- <p><span id="descripcion_ext">-Desc-Ext</span></p> -->
+            <p>
+              <b>Ultimo Reporte:</b>
+              <span class="dato-principal" id="ultimo_reporte_ext">-</span>
+            </p>
+          </section>
+        </div>
+        <!-- Fin de .columnas-wrapper -->
       </div>
+      <!-- Fin de .container -->
     </main>
     <script type="module" src="js/main-detalles.js"></script>
   </body>

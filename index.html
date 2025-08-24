@@ -9,64 +9,91 @@
     <link rel="stylesheet" href="styles/recomendaciones.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>Recomendaciones para tu Hogar</h1>
+    <div class="app-wrapper">
+      <div class="container">
+        <h1>Recomendaciones para tu Hogar</h1>
 
-      <div class="recomendaciones-grid">
-        <!-- Tarjeta 1: Confort Térmico -->
-        <a href="#" id="link-confort" class="card-link">
-          <div class="card" id="card-confort">
-            <div class="card-header">
-              <span class="card-icon" id="icon-confort">😊</span>
-              <h2 class="card-title">Confort Térmico</h2>
+        <div class="recomendaciones-grid">
+          <!-- Tarjeta 1: Confort Térmico -->
+          <a href="#" id="link-confort" class="card-link">
+            <div class="card" id="card-confort">
+              <div class="card-header">
+                <span class="card-icon" id="icon-confort">😊</span>
+                <h2 class="card-title">Confort Térmico</h2>
+              </div>
+              <div class="card-body">
+                <p id="msg-confort">Calculando...</p>
+              </div>
             </div>
-            <div class="card-body">
-              <p id="msg-confort">Calculando...</p>
-            </div>
-          </div>
-        </a>
+          </a>
 
-        <!-- Tarjeta 2: Riesgo de Moho y Ventilación -->
-        <a href="#" id="link-moho" class="card-link">
-          <div class="card" id="card-moho">
-            <div class="card-header">
-              <span class="card-icon" id="icon-moho">🌱</span>
-              <h2 class="card-title">Humedad y Ventilación</h2>
+          <!-- Tarjeta 2: Riesgo de Moho y Ventilación -->
+          <a href="#" id="link-moho" class="card-link">
+            <div class="card" id="card-moho">
+              <div class="card-header">
+                <span class="card-icon" id="icon-moho">🌱</span>
+                <h2 class="card-title">Humedad y Ventilación</h2>
+              </div>
+              <div class="card-body">
+                <p id="msg-moho">Calculando...</p>
+              </div>
             </div>
-            <div class="card-body">
-              <p id="msg-moho">Calculando...</p>
-            </div>
-          </div>
-        </a>
+          </a>
 
-        <!-- Tarjeta 3: Choque Térmico -->
-        <a href="#" id="link-choque" class="card-link">
-          <div class="card" id="card-choque">
-            <div class="card-header">
-              <span class="card-icon" id="icon-choque">🧥</span>
-              <h2 class="card-title">Diferencia de Temperatura</h2>
+          <!-- Tarjeta 3: Choque Térmico -->
+          <a href="#" id="link-choque" class="card-link">
+            <div class="card" id="card-choque">
+              <div class="card-header">
+                <span class="card-icon" id="icon-choque">🧥</span>
+                <h2 class="card-title">Diferencia de Temperatura</h2>
+              </div>
+              <div class="card-body">
+                <p id="msg-choque">Calculando...</p>
+              </div>
             </div>
-            <div class="card-body">
-              <p id="msg-choque">Calculando...</p>
-            </div>
-          </div>
-        </a>
+          </a>
 
-        <!-- Tarjeta 4: Previsión del Tiempo (ahora será la tendencia de presión) -->
-        <a href="#" id="link-presion" class="card-link">
-          <div class="card" id="card-presion">
-            <div class="card-header">
-              <span class="card-icon" id="icon-presion">📊</span>
-              <h2 class="card-title">Tendencia de Presión</h2>
+          <!-- Tarjeta 4: Previsión del Tiempo (ahora será la tendencia de presión) -->
+          <a href="#" id="link-presion" class="card-link">
+            <div class="card" id="card-presion">
+              <div class="card-header">
+                <span class="card-icon" id="icon-presion">📊</span>
+                <h2 class="card-title">Tendencia de Presión</h2>
+              </div>
+              <div class="card-body">
+                <p id="msg-presion">Calculando...</p>
+              </div>
             </div>
-            <div class="card-body">
-              <p id="msg-presion">Calculando...</p>
-            </div>
-          </div>
-        </a>
+          </a>
+        </div>
       </div>
-    </div>
 
+      <!--
+    =================================
+    PIE DE PÁGINA (FOOTER)
+    =================================
+    -->
+      <footer class="site-footer">
+        <div class="footer-content">
+          <p>
+            <strong
+              >Sensor Ambiental WiFi v<span id="app-version"
+                >1.0.0</span
+              ></strong
+            >
+            &copy; 2025.
+          </p>
+          <p>
+            Desarrollado con ❤️ por
+            <a
+              href="mailto:jhernandez59@gmail.com?subject=Interesado en el Sensor Ambiental"
+              target="_blank"
+              >José Hernández</a
+            >.
+          </p>
+        </div>
+      </footer>
+    </div>
     <!-- 2. Enlazamos el script principal como un módulo -->
     <script type="module" src="js/main-index.js"></script>
   </body>

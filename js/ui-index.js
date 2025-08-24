@@ -13,6 +13,8 @@ import {
   formatearFechaCompleta,
   descripcionPuntoRocio,
   describirProbabilidadLluvia,
+  procesarPronosticoLluvia,
+  procesarPronosticoLluviaHora,
 } from "./utils.js";
 
 // Función para la UI del SENSOR
@@ -43,7 +45,7 @@ export function actualizarSensorUI(datosSensor) {
       datosSensor.actual.humedad
     );
     document.getElementById("sensacion").textContent =
-      sensacionActual.toFixed(1) + " °C 🌡️";
+      sensacionActual.toFixed(1) + " °C 😅";
   }
 
   // 2. Calculo de la diferencia de sensacion termica
@@ -86,7 +88,7 @@ export function actualizarSensorUI(datosSensor) {
     altitud
   );
   document.getElementById("pres_nivel_mar").textContent =
-    presionNivelMarAct.toFixed(1) + " hPa ⛰️";
+    presionNivelMarAct.toFixed(1) + " hPa 💨";
 
   // --> Calculo de la presion anterior a nivel del mar
   // misma altura
@@ -153,26 +155,42 @@ export async function actualizarClimaExteriorUI(lat, lon) {
     // Ahora actualizamos la UI exterior con los datos recibidos
     document.getElementById("temp_ext").textContent =
       clima.temperatura.toFixed(1) + " °C 🌡️";
-    document.getElementById("ubicacion_ext").textContent = clima.ciudad + " 🌎";
-    document.getElementById("condicion_ext").textContent =
-      clima.condicion + "🌤️";
+
     document.getElementById("sensacion_ext").textContent =
-      clima.sensacion + " °C 🥵";
+      clima.sensacion + " °C 😅";
     document.getElementById("hum_ext").textContent = clima.humedad + " % 💧";
     document.getElementById("pres_ext").textContent = clima.presion + " hPa 📈";
 
     // Adicionar descipcion al punto de rocio
     const rocio = clima.rocio;
-    const climaOWM = clima.condicion;
-    const descripcionRocio = descripcionPuntoRocio(rocio);
-    const descripcion = descripcionPuntoRocio(rocio);
-    const resumenFinal = `🌤️ ${climaOWM}. ❄️ ${descripcionRocio}`;
-    document.getElementById("condicion_ext").textContent = resumenFinal;
-
     document.getElementById("rocio_ext").textContent = `${rocio.toFixed(
       1
-    )} °C ❄️`;
+    )} °C 💦`;
+
+    // *** Ubicacion y Descripcion
+    const climaOWM = clima.condicion;
+    const descripcionRocio = descripcionPuntoRocio(rocio);
+    document.getElementById("ubicacion_ext").textContent =
+      clima.ciudad + " 🌎" + " - ";
+    document.getElementById(
+      "condicion_ext"
+    ).textContent = `${clima.descripcion} 🌤️`;
+
+    document.getElementById(
+      "descripcion_ext"
+    ).textContent = `➡️ ${descripcionRocio}`;
+
+    /*
+    document.getElementById(
+      "descripcion_ext"
+    ).textContent = `${descripcionRocio}`;
+
+    "rocio_ext_trend" o "descripcion_ext"
+    const resumenFinal = `🌤️ ${climaOWM}. ❄️ ${descripcionRocio}`;
+    
+
     //document.getElementById("rocio_desc").textContent = descripcion;
+*/
 
     // Actualizamos la parte del Aire AQI
     document.getElementById(
@@ -182,6 +200,10 @@ export async function actualizarClimaExteriorUI(lat, lon) {
     // Probabilidad de Lluvia
     document.getElementById("lluvia_ext").textContent =
       (clima.probLluvia * 100).toFixed(0) + " % 🌧️";
+
+    //>>>>
+    document.getElementById("pop_1h_desc").textContent = clima.pronosticoLluvia;
+    //describirProbabilidadLluvia(clima.pronosticoLluviaTexto);
 
     // fecha y hora ultimo reporte OWM
     const tsOWM = datosAmbiente.datosActuales.timestamp; // Un timestamp de Firebase (en segundos)
@@ -228,8 +250,8 @@ export async function actualizarClimaExteriorUI(lat, lon) {
     }
 
     // --- NUEVO: Actualizar la UI del Pronóstico ---
-    if (clima.pronostico) {
-      const pron = clima.pronostico;
+    if (clima.pronosticoLluviaHora) {
+      const pron = clima.pronosticoLluviaHora;
 
       // Pronóstico 3 horas
       document.getElementById("pop_3h_porc").textContent =

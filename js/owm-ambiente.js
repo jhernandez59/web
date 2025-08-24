@@ -5,6 +5,7 @@ import {
   calcularPuntoRocio,
   descripcionAQI,
   procesarPronosticoLluvia,
+  procesarPronosticoLluviaHora,
 } from "./utils.js";
 // ... resto del código ...
 
@@ -45,7 +46,7 @@ export async function obtenerAmbienteExterior(lat, lon) {
 
   // === 1. Preparamos las NUEVAS URLs ===
   // Nota: usamos el endpoint 'onecall' y excluimos partes que no necesitamos para ahorrar datos.
-  const urlOneCall = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,alerts&units=metric&lang=es&appid=${apiKey}`;
+  const urlOneCall = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=alerts&units=metric&lang=es&appid=${apiKey}`;
   const urlAire = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`;
   const urlGeo = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
 
@@ -71,8 +72,8 @@ export async function obtenerAmbienteExterior(lat, lon) {
       geoRes.json(),
     ]);
 
-    // ----> ¡AÑADE ESTA LÍNEA DE DEPURACIÓN! <----
-    console.log("DATOS BRUTOS HOURLY RECIBIDOS:", onecallData.hourly);
+    // Línea de depuración para que veas los nuevos datos que recibes
+    console.log("DATOS BRUTOS MINUTELY RECIBIDOS:", onecallData.minutely);
 
     // === 4. Procesamos y estructuramos los datos recibidos ===
 
@@ -80,21 +81,28 @@ export async function obtenerAmbienteExterior(lat, lon) {
     const current = onecallData.current;
 
     // ¡Llamamos a nuestra nueva función helper!
-    const pronosticoLluvia = procesarPronosticoLluvia(
+    const pronosticoLluviaTexto = procesarPronosticoLluvia(
+      onecallData.minutely,
+      onecallData.hourly
+    );
+
+    const pronosticoLluviaHoraObj = procesarPronosticoLluviaHora(
       onecallData.hourly,
       onecallData.daily
     );
 
     const clima = {
       ciudad: geoData[0]?.name ?? onecallData.timezone, // OneCall da el timezone, no el nombre de ciudad
-      condicion: capitalizar(current.weather?.[0]?.description ?? "-"),
+      condicion: capitalizar(current.weather?.[0]?.main ?? "-"),
+      descripcion: capitalizar(current.weather?.[0]?.description ?? "-"),
       temperatura: current.temp ?? 0,
       sensacion: current.feels_like ?? 0,
       humedad: current.humidity ?? 0,
       presion: current.pressure ?? 0,
       rocio: calcularPuntoRocio(current.temp, current.humidity),
       probLluvia: onecallData.hourly[0]?.pop ?? 0, // Prob. para la hora actual
-      pronostico: pronosticoLluvia, // ¡Asignamos el objeto completo!
+      pronosticoLluvia: pronosticoLluviaTexto,
+      pronosticoLluviaHora: pronosticoLluviaHoraObj,
     };
 
     // --- Procesar datos del AIRE (AQI) ---

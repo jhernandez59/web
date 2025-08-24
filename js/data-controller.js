@@ -15,8 +15,10 @@ import {
   query,
   orderByKey,
   limitToLast,
+  limitToFirst,
   get,
   onValue,
+  remove,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /*
@@ -174,5 +176,76 @@ export function iniciarControladorDeDatos(callbacks) {
         ultimoTimestampRecibido,
       });
     }, 5000); // Se actualiza cada 5 segundos
+  }
+}
+
+/**
+ * Revisa el historial de presión y borra los registros más antiguos si se excede el límite.
+ * Esta función es "agnóstica" a la UI, solo gestiona los datos.
+ * @param {string} mac - La dirección MAC del sensor a podar.
+ * @param {number} limite - El número máximo de registros a conservar.
+ */
+export async function podarHistorialPresion(mac, limite = 100) {
+  const db = getDatabase();
+  const historialRef = ref(
+    db,
+    `/sensores_en_tiempo_real/${mac}/pressure_history`
+  );
+
+  try {
+    // 1. Primero, obtenemos una "foto" (snapshot) del historial completo para saber cuántos registros hay.
+    const snapshotCompleto = await get(historialRef);
+
+    if (!snapshotCompleto.exists()) {
+      console.log("No hay historial para podar.");
+      return;
+    }
+
+    const totalRegistros = snapshotCompleto.size; // Usamos .size, no .numChildren()
+
+    if (totalRegistros <= limite) {
+      console.log(
+        `✅ Historial dentro del límite (${totalRegistros}/${limite}). No se necesita podar.`
+      );
+      return;
+    }
+
+    // 2. Calculamos cuántos registros necesitamos borrar.
+    const cantidadABorrar = totalRegistros - limite;
+    console.warn(
+      `Se deben borrar ${cantidadABorrar} registros antiguos para cumplir el límite.`
+    );
+
+    // 3. ¡LA MAGIA! Creamos una consulta para obtener una referencia a los N registros MÁS ANTIGUOS.
+    // - orderByKey() ordena por la clave de push (que es cronológica).
+    // - limitToFirst(N) nos da solo los primeros N resultados de esa lista ordenada.
+    const consultaParaBorrar = query(
+      historialRef,
+      orderByKey(),
+      limitToFirst(cantidadABorrar)
+    );
+
+    // 4. Obtenemos el snapshot de los registros que vamos a borrar.
+    const snapshotABorrar = await get(consultaParaBorrar);
+
+    if (snapshotABorrar.exists()) {
+      // 5. Iteramos sobre los registros a borrar y creamos una promesa de borrado para cada uno.
+      const promesasDeBorrado = [];
+      snapshotABorrar.forEach((childSnapshot) => {
+        console.log(
+          ` -> Preparando para borrar el registro con clave: ${childSnapshot.key}`
+        );
+        // La función remove() de v9 toma la referencia del hijo directamente.
+        promesasDeBorrado.push(remove(childSnapshot.ref));
+      });
+
+      // 6. Ejecutamos todas las operaciones de borrado en paralelo.
+      await Promise.all(promesasDeBorrado);
+      console.log(
+        `✅ Se han borrado ${cantidadABorrar} registros antiguos exitosamente.`
+      );
+    }
+  } catch (error) {
+    console.error("❌ Error al podar historial de presión:", error);
   }
 }

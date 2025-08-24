@@ -78,33 +78,63 @@ function evaluarConfortTermico(temp, humedad) {
   }
 }
 
+// ARCHIVO: js/ui-recomendaciones.js
+
 function evaluarRiesgoMoho(humedadInt, humedadExt) {
+  console.log(
+    `Evaluando Riesgo de Moho: Interior=${humedadInt}%, Exterior=${humedadExt}%`
+  );
+
+  const humedadIntRedondeada = Math.round(humedadInt);
+
+  // CASO 1: ALERTA MÁXIMA - Humedad interior muy alta
   if (humedadInt > 70) {
-    actualizarTarjeta(
-      "moho",
-      "⚠️",
-      `Humedad interior muy alta (${humedadInt}%)! Riesgo de moho. Ventila urgentemente si el aire exterior es más seco.`,
-      "peligro"
-    );
+    let mensaje = `¡Humedad interior muy alta (${humedadIntRedondeada}%)! Riesgo elevado de moho. `;
+    // Sub-condición: ¿Podemos ventilar?
+    if (humedadExt !== null && humedadExt < humedadInt) {
+      mensaje += `El aire exterior está más seco (${humedadExt}%), ventila ahora para reducir la humedad.`;
+    } else {
+      mensaje += `Considera usar un deshumidificador, ya que en el aire exterior la humedad (${humedadExt}%).`;
+    }
+    actualizarTarjeta("moho", "⚠️", mensaje, "peligro");
+
+    // CASO 2: PRECAUCIÓN - Humedad interior elevada
   } else if (humedadInt > 60) {
-    actualizarTarjeta(
-      "moho",
-      "💧",
-      `Humedad interior elevada (${humedadInt}%). Es un buen momento para ventilar.`,
-      "precaucion"
-    );
-  } else if (humedadExt && humedadInt > humedadExt + 5) {
-    actualizarTarjeta(
-      "moho",
-      "💨",
-      "El aire exterior está más seco. ¡Perfecto para abrir las ventanas y renovar el aire!",
-      "bueno"
-    );
-  } else {
+    let mensaje = `Humedad interior elevada (${humedadIntRedondeada}%). `;
+    // Sub-condición: ¿Es buena idea ventilar?
+    if (humedadExt !== null && humedadExt < humedadInt) {
+      mensaje += `Es un buen momento para ventilar y bajar el nivel de humedad.`;
+      actualizarTarjeta("moho", "💨", mensaje, "precaucion");
+    } else {
+      mensaje += `Evita abrir las ventanas para no aumentar la humedad, en el exterior (${humedadExt}%).`;
+      actualizarTarjeta("moho", "💧", mensaje, "precaucion");
+    }
+
+    // CASO 3: RECOMENDACIÓN PROACTIVA - Oportunidad para ventilar
+  } else if (humedadExt !== null && humedadExt < humedadInt - 5) {
+    // Un umbral para que la diferencia sea notable
     actualizarTarjeta(
       "moho",
       "👍",
-      `Niveles de humedad controlados (${humedadInt}%).`,
+      `El aire exterior está más seco (${humedadExt}%). Es una buena oportunidad para renovar el aire sin aumentar la humedad.`,
+      "bueno"
+    );
+
+    // CASO 4: ADVERTENCIA PREVENTIVA - ¡No abras las ventanas!
+  } else if (humedadExt !== null && humedadExt > humedadInt + 5) {
+    actualizarTarjeta(
+      "moho",
+      "🚫",
+      `El aire exterior está muy húmedo (${humedadExt}%). Mantén las ventanas cerradas para conservar el confort interior.`,
+      "precaucion"
+    );
+
+    // CASO 5: TODO BIEN - No se necesita acción
+  } else {
+    actualizarTarjeta(
+      "moho",
+      "✅",
+      `Niveles de humedad controlados y equilibrados con el exterior. Todo en orden.`,
       "bueno"
     );
   }
@@ -165,10 +195,13 @@ export function actualizarRecomendacionesUI(datos) {
   // datos.owm contiene los datos externos (tempExterior, humedadExterior)
   if (datos.sensor) {
     evaluarConfortTermico(datos.sensor.temperatura, datos.sensor.humedad);
-    evaluarRiesgoMoho(
-      datos.sensor.humedad,
-      datos.owm ? datos.owm.humidity : null
-    );
+
+    // --- LÓGICA DE MOHO (LA QUE ESTAMOS ARREGLANDO) ---
+    // Extraemos la humedad exterior del objeto 'owm'
+    // En `owm-ambiente.js`, la propiedad se llama `humedad`.
+    const humedadExterior = datos.owm ? datos.owm.humedad : null;
+    // Pasamos ambos valores a la función de evaluación
+    evaluarRiesgoMoho(datos.sensor.humedad, humedadExterior);
 
     const tempExterior = datos.owm ? datos.owm.temperatura : null;
     evaluarDiferenciaTermica(datos.sensor.temperatura, tempExterior);

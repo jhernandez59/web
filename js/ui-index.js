@@ -125,8 +125,10 @@ export function actualizarSensorUI(datosSensor) {
     document.getElementById("ip").textContent = datosSensor.estado.ip || "-";
     document.getElementById("rssi").textContent =
       datosSensor.estado.rssi + " dBm 📶";
-    document.getElementById("firmware").textContent =
-      datosSensor.version.numero || "-";
+    document.getElementById(
+      "firmware"
+    ).textContent = `${datosSensor.version.numero} - ${datosSensor.version.clave} 🎁`;
+    // datosSensor.version.numero || "-";
   }
 
   if (datosSensor.latitud && datosSensor.longitud) {
@@ -178,7 +180,7 @@ export async function actualizarClimaExteriorUI(lat, lon) {
 
     document.getElementById(
       "descripcion_ext"
-    ).textContent = `➡️ ${descripcionRocio}`;
+    ).textContent = `${descripcionRocio} ✅`;
 
     /*
     document.getElementById(
@@ -195,7 +197,7 @@ export async function actualizarClimaExteriorUI(lat, lon) {
     // Actualizamos la parte del Aire AQI
     document.getElementById(
       "aqi_ext"
-    ).textContent = `${calidad.aqi} (${calidad.descripcion}) 🏭`;
+    ).textContent = `${calidad.aqi} (${calidad.descripcion})`;
 
     // Probabilidad de Lluvia
     document.getElementById("lluvia_ext").textContent =

@@ -13,17 +13,17 @@ export function capitalizar(texto) {
 export function descripcionAQI(aqi) {
   switch (aqi) {
     case 1:
-      return "Bueno";
+      return "Bueno 🟢";
     case 2:
-      return "Aceptable";
+      return "Aceptable 🟢";
     case 3:
-      return "Moderado";
+      return "Moderado 🟡";
     case 4:
-      return "Malo";
+      return "Malo 🟠";
     case 5:
-      return "Muy malo";
+      return "Muy malo 🔴";
     default:
-      return "Desconocido";
+      return "Desconocido ❓";
   }
 }
 

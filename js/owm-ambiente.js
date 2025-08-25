@@ -1,5 +1,8 @@
-// js/owm-ambiente.js
-// Los datos se almacenan de forma persistente
+// =======================================================
+// ARCHIVO: owm-ambiente.js
+// RESPONSABILIDAD: Gestionar la obtención de datos de OWM.
+// NO DEBE TOCAR EL DOM.
+// =======================================================
 import {
   capitalizar,
   calcularPuntoRocio,

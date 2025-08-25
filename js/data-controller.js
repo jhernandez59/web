@@ -1,6 +1,6 @@
 // =======================================================
 // ARCHIVO: data-controller.js
-// RESPONSABILIDAD: Gestionar la obtención de datos de Firebase y OWM.
+// RESPONSABILIDAD: Gestionar la obtención de datos de Firebase.
 // NO DEBE TOCAR EL DOM.
 // =======================================================
 

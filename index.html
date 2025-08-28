@@ -3,98 +3,265 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Recomendaciones Ambientales</title>
+    <title>Sensor Ambiente</title>
+
+    <!-- SEO y Descripción -->
+    <meta
+      name="description"
+      content="Monitoriza tu ambiente con nuestra app de sensores."
+    />
+
+    <!-- Color de la barra de estado en navegadores (Chrome, Firefox, etc.) -->
+    <meta name="theme-color" content="#2196f3" />
+
+    <!-- Manifest para PWA (Android y Chrome) -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Iconos genéricos -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/icons/icon-192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/icons/icon-512.png"
+    />
+
+    <!-- Configuración para iOS y Safari -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Mi Sensor Ambiental" />
+
+    <!-- Icono principal para iOS (idealmente 180x180) -->
+    <!-- <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" /> -->
+    <!-- <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png" /> -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <!-- Splash Screens para iOS (AÑADE LAS QUE NECESITES) -->
+    <!-- iPhone 8, 7, 6s, 6 (750x1334) -->
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/splash-750x1334.png"
+      media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)"
+    />
+    <!-- iPhone X, XS, 11 Pro (1125x2436) -->
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/splash-1125x2436.png"
+      media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)"
+    />
+    <!-- iPhone 12, 13 Pro (1170x2532) -->
+    <link
+      rel="apple-touch-startup-image"
+      href="/splash/splash-1170x2532.png"
+      media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)"
+    />
 
     <!-- 1. Enlazamos la hoja de estilos externa -->
     <link rel="stylesheet" href="styles/recomendaciones.css" />
   </head>
   <body>
-    <div class="app-wrapper">
-      <div class="container">
-        <h1>Recomendaciones para tu Hogar</h1>
-
-        <div class="recomendaciones-grid">
-          <!-- Tarjeta 1: Confort Térmico -->
-          <a href="#" id="link-confort" class="card-link">
-            <div class="card" id="card-confort">
-              <div class="card-header">
-                <span class="card-icon" id="icon-confort">😊</span>
-                <h2 class="card-title">Confort Térmico</h2>
-              </div>
-              <div class="card-body">
-                <p id="msg-confort">Calculando...</p>
-              </div>
-            </div>
-          </a>
-
-          <!-- Tarjeta 2: Riesgo de Moho y Ventilación -->
-          <a href="#" id="link-moho" class="card-link">
-            <div class="card" id="card-moho">
-              <div class="card-header">
-                <span class="card-icon" id="icon-moho">🌱</span>
-                <h2 class="card-title">Humedad y Ventilación</h2>
-              </div>
-              <div class="card-body">
-                <p id="msg-moho">Calculando...</p>
-              </div>
-            </div>
-          </a>
-
-          <!-- Tarjeta 3: Choque Térmico -->
-          <a href="#" id="link-choque" class="card-link">
-            <div class="card" id="card-choque">
-              <div class="card-header">
-                <span class="card-icon" id="icon-choque">🧥</span>
-                <h2 class="card-title">Diferencia de Temperatura</h2>
-              </div>
-              <div class="card-body">
-                <p id="msg-choque">Calculando...</p>
-              </div>
-            </div>
-          </a>
-
-          <!-- Tarjeta 4: Previsión del Tiempo (ahora será la tendencia de presión) -->
-          <a href="#" id="link-presion" class="card-link">
-            <div class="card" id="card-presion">
-              <div class="card-header">
-                <span class="card-icon" id="icon-presion">📊</span>
-                <h2 class="card-title">Tendencia de Presión</h2>
-              </div>
-              <div class="card-body">
-                <p id="msg-presion">Calculando...</p>
-              </div>
-            </div>
-          </a>
-        </div>
+    <!-- PANTALLA DE CONFIGURACIÓN MANUAL (para nuevos usuarios) -->
+    <div id="setup-container">
+      <div style="padding: 20px; text-align: center">
+        <h1>Configurar Sensor</h1>
+        <p>Por favor, introduce la dirección MAC de tu dispositivo sensor.</p>
+        <input
+          type="text"
+          id="mac-input"
+          placeholder="Ej: 68C63A87F36C"
+          style="
+            padding: 10px;
+            width: 80%;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+          "
+        />
+        <button id="save-mac-button" style="padding: 10px 20px">
+          Guardar y Conectar
+        </button>
+        <p id="setup-error" style="color: red; min-height: 1.2em"></p>
       </div>
+    </div>
 
-      <!--
+    <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN (inicialmente oculto) -->
+    <div id="app-container" hidden>
+      <div class="app-wrapper">
+        <div class="container">
+          <h1>Recomendaciones para tu Hogar</h1>
+
+          <div class="recomendaciones-grid">
+            <!-- Tarjeta 1: Confort Térmico -->
+            <a href="#" id="link-confort" class="card-link">
+              <div class="card" id="card-confort">
+                <div class="card-header">
+                  <span class="card-icon" id="icon-confort">😊</span>
+                  <h2 class="card-title">Confort Térmico</h2>
+                </div>
+                <div class="card-body">
+                  <p id="msg-confort">Calculando...</p>
+                </div>
+              </div>
+            </a>
+
+            <!-- Tarjeta 2: Riesgo de Moho y Ventilación -->
+            <a href="#" id="link-moho" class="card-link">
+              <div class="card" id="card-moho">
+                <div class="card-header">
+                  <span class="card-icon" id="icon-moho">🌱</span>
+                  <h2 class="card-title">Humedad y Ventilación</h2>
+                </div>
+                <div class="card-body">
+                  <p id="msg-moho">Calculando...</p>
+                </div>
+              </div>
+            </a>
+
+            <!-- Tarjeta 3: Choque Térmico -->
+            <a href="#" id="link-choque" class="card-link">
+              <div class="card" id="card-choque">
+                <div class="card-header">
+                  <span class="card-icon" id="icon-choque">🧥</span>
+                  <h2 class="card-title">Diferencia de Temperatura</h2>
+                </div>
+                <div class="card-body">
+                  <p id="msg-choque">Calculando...</p>
+                </div>
+              </div>
+            </a>
+
+            <!-- Tarjeta 4: Previsión del Tiempo (ahora será la tendencia de presión) -->
+            <a href="#" id="link-presion" class="card-link">
+              <div class="card" id="card-presion">
+                <div class="card-header">
+                  <span class="card-icon" id="icon-presion">📊</span>
+                  <h2 class="card-title">Tendencia de Presión</h2>
+                </div>
+                <div class="card-body">
+                  <p id="msg-presion">Calculando...</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!--
     =================================
     PIE DE PÁGINA (FOOTER)
     =================================
     -->
-      <footer class="site-footer">
-        <div class="footer-content">
-          <p>
-            <strong
-              >Sensor Ambiental WiFi v<span id="app-version"
-                >1.0.0</span
-              ></strong
-            >
-            &copy; 2025.
-          </p>
-          <p>
-            Desarrollado con ❤️ por
-            <a
-              href="mailto:jhernandez59@gmail.com?subject=Interesado en el Sensor Ambiental"
-              target="_blank"
-              >José Hernández</a
-            >.
-          </p>
-        </div>
-      </footer>
+        <footer class="site-footer">
+          <div class="footer-content">
+            <p>
+              <strong
+                >Sensor Ambiental WiFi v<span id="app-version"
+                  >1.0.0</span
+                ></strong
+              >
+              &copy; 2025.
+            </p>
+            <p>
+              Desarrollado con ❤️ por
+              <a
+                href="mailto:jhernandez59@gmail.com?subject=Interesado en el Sensor Ambiental"
+                target="_blank"
+                >José Hernández</a
+              >.
+            </p>
+          </div>
+        </footer>
+      </div>
     </div>
-    <!-- 2. Enlazamos el script principal como un módulo -->
-    <script type="module" src="js/main-index.js"></script>
+    <!-- 1. script para manejar el mac en la entrda a la aplicacion -->
+    <script type="module">
+      // Importamos la función de arranque de nuestro módulo principal
+      import { appIndex } from "./js/main-index.js";
+
+      // Obtenemos referencias a los elementos del DOM
+      const setupContainer = document.getElementById("setup-container");
+      const appContainer = document.getElementById("app-container");
+      const macInput = document.getElementById("mac-input");
+      const saveMacButton = document.getElementById("save-mac-button");
+      const setupError = document.getElementById("setup-error");
+      const macDisplay = document.getElementById("mac-display");
+
+      // Lógica principal al cargar la página
+      window.addEventListener("load", () => {
+        const macGuardada = localStorage.getItem("sensor_mac");
+
+        if (macGuardada) {
+          // Ya tenemos una MAC, vamos directo a la app
+          inicializarAppConMAC(macGuardada);
+        } else {
+          // Es la primera vez o se borró la MAC, mostramos la pantalla de configuración
+          mostrarPantallaDeSetup();
+        }
+
+        // El Service Worker se registra independientemente del estado de configuración
+        registrarServiceWorker();
+      });
+
+      // Event listener para el botón de guardar
+      saveMacButton.addEventListener("click", () => {
+        // Obtenemos, limpiamos y convertimos a mayúsculas el valor del input
+        const macValue = macInput.value.trim().toUpperCase();
+
+        // Validación simple: 12 caracteres hexadecimales
+        if (/^[0-9A-F]{12}$/.test(macValue)) {
+          // La MAC es válida
+          setupError.textContent = ""; // Limpiamos cualquier error previo
+          localStorage.setItem("sensor_mac", macValue);
+          inicializarAppConMAC(macValue);
+        } else {
+          // La MAC no es válida, mostramos un error
+          setupError.textContent =
+            "Dirección MAC inválida. Deben ser 12 caracteres hexadecimales (0-9, A-F).";
+        }
+      });
+
+      function inicializarAppConMAC(mac) {
+        // Oculta la configuración y muestra la app principal
+        setupContainer.hidden = true;
+        appContainer.hidden = false;
+
+        // Actualiza la interfaz con la MAC
+        if (macDisplay) {
+          macDisplay.textContent = `Conectado a: ${mac}`;
+        }
+
+        console.log(
+          `Inicializando la aplicación para el sensor con MAC: ${mac}`
+        );
+        // ¡AQUÍ ESTÁ LA CONEXIÓN CLAVE!
+        // Ahora que tenemos la MAC, llamamos a la función de nuestro módulo
+        // para que inicie toda la lógica de Firebase y la app.
+        appIndex(mac);
+      }
+
+      function mostrarPantallaDeSetup() {
+        // Muestra la configuración y oculta la app
+        setupContainer.hidden = false;
+        appContainer.hidden = true;
+      }
+
+      function registrarServiceWorker() {
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((reg) => console.log("ServiceWorker registrado.", reg))
+            .catch((err) =>
+              console.log("Fallo en el registro del ServiceWorker:", err)
+            );
+        }
+      }
+    </script>
   </body>
 </html>

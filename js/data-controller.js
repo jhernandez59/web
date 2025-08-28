@@ -117,9 +117,9 @@ export async function analizarTendenciaPresion(macAddress, horas = 4) {
  * @param {function} callbacks.onOwmData - Se llama cuando llegan nuevos datos de OWM.
  * @param {function} callbacks.onEstadoUpdate - Se llama para actualizar el estado "en línea/desconectado".
  */
-export function iniciarControladorDeDatos(callbacks) {
-  const params = new URLSearchParams(location.search);
-  const mac = params.get("mac") || "68C63A87F36C";
+export function iniciarControladorDeDatos(mac, callbacks) {
+  // const params = new URLSearchParams(location.search);
+  // const mac = params.get("mac") || "68C63A87F36C";
   const path = `/sensores_en_tiempo_real/${mac}`;
   const sensorRef = ref(database, path); // Apunta a /sensores_en_tiempo_real/{mac} en Realtime Database.
 

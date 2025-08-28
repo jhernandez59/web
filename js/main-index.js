@@ -17,11 +17,10 @@ import { FRONTEND_VERSION } from "./config.js"; // <-- Importamos la versión
 let datosSensorActuales = null;
 let datosOwmActuales = null;
 
-function appIndex() {
-  console.log("App de la página principal (Recomendaciones) iniciada.");
-
-  const params = new URLSearchParams(location.search);
-  const mac = params.get("mac") || "68C63A87F36C";
+export function appIndex(mac) {
+  console.log(
+    `App de la página principal (Recomendaciones) iniciada para el sensor: ${mac}`
+  );
 
   actualizarEnlacesTarjetas(mac);
 
@@ -110,7 +109,7 @@ function appIndex() {
     },
   };
 
-  iniciarControladorDeDatos(callbacks);
+  iniciarControladorDeDatos(mac, callbacks);
 
   // Lógica específica para la tendencia de presión
   //const params = new URLSearchParams(location.search);
@@ -137,5 +136,3 @@ function appIndex() {
     versionElement.textContent = FRONTEND_VERSION;
   }
 }
-
-document.addEventListener("DOMContentLoaded", appIndex);

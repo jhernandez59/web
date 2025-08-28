@@ -1,3 +1,5 @@
+// js/main-detalles.js
+
 import { iniciarControladorDeDatos } from "./data-controller.js";
 import {
   actualizarSensorUI,
@@ -5,8 +7,8 @@ import {
   actualizarEstadoUI,
 } from "./ui-index.js";
 
-function appDetalles() {
-  console.log("App de la página principal iniciada.");
+export function appDetalles(mac) {
+  console.log(`App de detalles iniciada para el sensor: ${mac}`);
 
   // Creamos el objeto de callbacks con las funciones de UI de esta página
   const callbacks = {
@@ -16,7 +18,5 @@ function appDetalles() {
   };
 
   // Iniciamos el controlador de datos y le pasamos nuestros callbacks
-  iniciarControladorDeDatos(callbacks);
+  iniciarControladorDeDatos(mac, callbacks);
 }
-
-document.addEventListener("DOMContentLoaded", appDetalles);

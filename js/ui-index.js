@@ -88,7 +88,7 @@ export function actualizarSensorUI(datosSensor) {
     altitud
   );
   document.getElementById("pres_nivel_mar").textContent =
-    presionNivelMarAct.toFixed(1) + " hPa 💨";
+    presionNivelMarAct.toFixed(1) + " hPa 🏔️";
 
   // --> Calculo de la presion anterior a nivel del mar
   // misma altura
@@ -161,7 +161,7 @@ export async function actualizarClimaExteriorUI(lat, lon) {
     document.getElementById("sensacion_ext").textContent =
       clima.sensacion + " °C 😅";
     document.getElementById("hum_ext").textContent = clima.humedad + " % 💧";
-    document.getElementById("pres_ext").textContent = clima.presion + " hPa 📈";
+    document.getElementById("pres_ext").textContent = clima.presion + " hPa 🏔️";
 
     // Adicionar descipcion al punto de rocio
     const rocio = clima.rocio;

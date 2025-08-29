@@ -36,8 +36,8 @@ import { interpretarTendenciaPresion } from "./utils.js";
 // 2. ESTADO INTERNO DEL MÓDULO (Variables "Privadas")
 // =======================================================
 // Estas variables solo son visibles y utilizadas dentro de este archivo.
-let ultimoTimestampRecibido = 0; // Se guardará en milisegundos
-const UMBRAL_DESCONEXION_MS = 16 * 60 * 1000; // 16 minutos
+// let ultimoTimestampRecibido = 0; // Se guardará en milisegundos
+const UMBRAL_DESCONEXION_MS = 30 * 60 * 1000; // 30 minutos
 const ZONA_HORARIA_COLOMBIA = -5;
 
 // =======================================================
@@ -120,6 +120,7 @@ export async function analizarTendenciaPresion(macAddress, horas = 4) {
 export function iniciarControladorDeDatos(mac, callbacks) {
   // const params = new URLSearchParams(location.search);
   // const mac = params.get("mac") || "68C63A87F36C";
+  let ultimoTimestampRecibido = 0; // Se guardará en milisegundos
   const path = `/sensores_en_tiempo_real/${mac}`;
   const sensorRef = ref(database, path); // Apunta a /sensores_en_tiempo_real/{mac} en Realtime Database.
 
